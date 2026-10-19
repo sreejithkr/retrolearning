@@ -1,16 +1,31 @@
 package org.slang4;
 
+import java.util.Arrays;
+
 public class Lexer {
 
     private char[] inputExpression;
     Integer index;
     Integer length;
     double number; // Last grabbed number from the stream
+    protected ValueTable[] valueTables;
+    Tokens currentToken;
+    Tokens penultimateToken;
+
 
     Lexer(String expression){
         this.inputExpression = expression.toCharArray();
         this.index = 0;
         this.length = expression.length();
+        valueTables =   Arrays.stream(Tokens.values())
+                .map(token -> new ValueTable(token, token.value()))
+                .toArray(ValueTable[]::new);
+    }
+
+    protected Tokens getNextToken(){
+        penultimateToken = currentToken;
+        currentToken = getToken();
+        return currentToken;
     }
 
     Tokens getToken(){

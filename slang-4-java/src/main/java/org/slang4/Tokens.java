@@ -24,7 +24,15 @@ public enum Tokens {
     TOK_COMMENT,
     TOKEN_BOOL_TRUE,
     TOKEN_BOOL_FALSE,
-    TOKEN_STRING,
+    TOKEN_STRING;
+
+    String value() {
+        return switch (this) {
+            case TOKEN_PRINT -> "PRINT";
+            case TOKEN_PRINTLN -> "PRINTLN";
+            default -> this.name();
+        };
+    }
 }
 
 

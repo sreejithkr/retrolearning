@@ -1,12 +1,10 @@
 package org.slang4;
 
-import org.slang4.ast.BinaryExpression;
-import org.slang4.ast.Expression;
-import org.slang4.ast.NumericExpression;
-import org.slang4.ast.UnaryExpression;
+import org.slang4.ast.*;
+
+import java.util.ArrayList;
 
 public class RDParser extends Lexer {
-    Tokens currentToken;
     public RDParser(String expression) {
         super(expression);
     }
@@ -16,6 +14,73 @@ public class RDParser extends Lexer {
         return expresion();
     }
 
+
+    /// <summary>
+    /// The Grammar is
+    ///
+    /// <stmtlist> := { <statement> }+
+    ///
+    /// {<statement> := <printstmt> | <printlinestmt>
+    /// <printstmt> := print <expr >;
+    ///
+    /// <printlinestmt>:= printline <expr>;
+    ///
+    /// <Expr> ::= <Term> | <Term> { + | - } <Expr>
+    /// <Term> ::= <Factor> | <Factor> {*|/} <Term>
+    /// <Factor>::= <number> | ( <expr> ) | {+|-} <factor>
+    ///
+    ///
+    /// </summary>
+    public ArrayList<Statement> parse(){
+        getNextToken();
+        return statementList();
+    }
+
+    public ArrayList<Statement> statementList(){
+        ArrayList<Statement> statements = new ArrayList<>();
+        //TODO Add statement while current token not null
+        while (currentToken != Tokens.TOKEN_NULL){
+            Statement statement = statement();
+            if (statement != null) {
+                statements.add(statement);
+            }
+        }
+        return statements;
+    }
+    Statement statement(){
+        Statement returnValue = null;
+        switch (currentToken){
+            case TOKEN_PRINT:
+                returnValue = printStatement();
+                getNextToken();
+                break;
+            case TOKEN_PRINTLN:
+                returnValue = printLineStatement();
+                getNextToken();
+                break;
+            default:
+                throw new RuntimeException("Invalid statement");
+        }
+        return returnValue;
+    }
+
+    Statement printStatement(){
+        getNextToken();
+        Expression expression = expresion();
+        if (currentToken != Tokens.TOKEN_SEMICOLON){
+            throw new RuntimeException(": is expected");
+        }
+        return new PrintStatement(expression);
+    }
+
+    public Statement printLineStatement(){
+        getNextToken();
+        Expression expression = expresion();
+        if (currentToken != Tokens.TOKEN_SEMICOLON){
+            throw new RuntimeException(": is expected");
+        }
+        return new PrintLineStatement(expression);
+    }
     /*
     <Expr> ::= <Term> | Term { + | - } <Expr>
     <Term> ::= <Factor> | <Factor> {*|/} <Term>
