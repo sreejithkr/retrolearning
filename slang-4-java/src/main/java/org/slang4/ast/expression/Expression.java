@@ -1,4 +1,4 @@
-package org.slang4.ast;
+package org.slang4.ast.expression;
 
 import org.slang4.CompilationContext;
 import org.slang4.RuntimeContext;

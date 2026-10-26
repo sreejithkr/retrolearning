@@ -1,21 +1,20 @@
-package org.slang4.ast;
+package org.slang4.ast.expression;
 
 import org.slang4.CompilationContext;
 import org.slang4.RuntimeContext;
 import org.slang4.SymbolInfo;
 import org.slang4.TypeInfo;
 
-public class NumericExpression implements Expression {
+public class UnaryExpression implements Expression {
+    protected Expression expression;
+    protected TypeInfo typeInfo;
 
-    private double value;
-
-    public NumericExpression(double value) {
-        this.value = value;
+    public UnaryExpression(Expression expression) {
+        this.expression = expression;
     }
-
     @Override
     public SymbolInfo evaluate(RuntimeContext context) {
-        return null;//Should be value in the first step
+        return null;
     }
 
     @Override
@@ -25,6 +24,6 @@ public class NumericExpression implements Expression {
 
     @Override
     public TypeInfo getType() {
-        return null;
+        return typeInfo;
     }
 }

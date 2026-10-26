@@ -11,6 +11,7 @@ public class Lexer {
     protected ValueTable[] valueTables;
     Tokens currentToken;
     Tokens penultimateToken;
+    String lastDetectedString;
 
 
     Lexer(String expression){
@@ -32,10 +33,6 @@ public class Lexer {
         Tokens token = Tokens.ILLEGAL_TOKEN;
 
         while ( index < length && (inputExpression[index] != '\t' || inputExpression[index] != ' ')) {
-            if (index == length) {
-                return Tokens.TOKEN_NULL;
-            }
-
             switch (inputExpression[index]) {
 
                 case '+':
@@ -62,17 +59,47 @@ public class Lexer {
                     token = Tokens.TOKEN_CPAREN;
                     index++;
                     break;
+                case '"':
+                    StringBuilder stringVal = new StringBuilder();
+                    token = Tokens.TOKEN_STRING;
+                    index++;
+                    while (index < length && inputExpression[index] != '"'){
+                         stringVal.append(inputExpression[index]);
+                         index++;
+                     }
+                    if (index >= length) {
+                        token = Tokens.ILLEGAL_TOKEN;
+                        return token;
+                    } else {
+                        lastDetectedString = stringVal.toString();
+                    }
+                    break;
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 
-                    String temp = "";
+                    StringBuilder temp = new StringBuilder();
                     while (index < length && isNumber(inputExpression[index])) {
-                        temp += inputExpression[index];
+                        temp.append(inputExpression[index]);
                         index++;
                     }
-                    number = Double.parseDouble(temp);
+                    if (inputExpression[index] == '.') {
+                        temp.append(inputExpression[index]);
+                        index++;
+                        while (index < length && isNumber(inputExpression[index])) {
+                            temp.append(inputExpression[index]);
+                            index++;
+                        }
+                    }
+                    number = Double.parseDouble(temp.toString());
                     token = Tokens.TOKEN_NUMERIC;
                 break;
                 default:
+                    if (Character.isAlphabetic(inputExpression[index]) || inputExpression[index] == '_'){
+                        StringBuilder tempStr = new StringBuilder();
+                        while (index < length && Character.isLetterOrDigit(inputExpression[index]) ) {
+                            tempStr.append(inputExpression[index]);
+                            index++;
+                        }
+                    }
                     System.out.println("Error while analysing the token");
                     throw new RuntimeException("Error while analysing the token");
             }
@@ -83,8 +110,6 @@ public class Lexer {
     private Boolean isNumber(char ch){
         return ch >= '0' && ch <= '9';
     }
-
-
 
 }
 

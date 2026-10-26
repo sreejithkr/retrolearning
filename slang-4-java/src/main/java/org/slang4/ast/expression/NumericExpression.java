@@ -1,21 +1,21 @@
-package org.slang4.ast;
+package org.slang4.ast.expression;
 
 import org.slang4.CompilationContext;
 import org.slang4.RuntimeContext;
 import org.slang4.SymbolInfo;
 import org.slang4.TypeInfo;
 
-public class UnaryExpression implements Expression {
-    private Expression expression;
-    private TypeInfo operator;
+public class NumericExpression implements Expression {
 
-    public UnaryExpression(Expression expression, TypeInfo operator) {
-        this.expression = expression;
-        this.operator = operator;
+    private double value;
+
+    public NumericExpression(double value) {
+        this.value = value;
     }
+
     @Override
     public SymbolInfo evaluate(RuntimeContext context) {
-        return null;
+        return null;//Should be value in the first step
     }
 
     @Override

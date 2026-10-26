@@ -1,6 +1,5 @@
 package org.slang4;
 
-import org.w3c.dom.TypeInfo;
 
 public class SymbolInfo {
     public String symbolName;   // Symbol Name

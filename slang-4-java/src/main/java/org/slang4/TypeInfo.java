@@ -1,4 +1,8 @@
 package org.slang4;
 
-public class TypeInfo {
+public enum TypeInfo {
+    illegal,
+    numeric,
+    bool,
+    string;
 }

@@ -1,4 +1,4 @@
-package org.slang4.ast;
+package org.slang4.ast.expression;
 
 import org.slang4.CompilationContext;
 import org.slang4.RuntimeContext;
@@ -7,13 +7,13 @@ import org.slang4.TypeInfo;
 
 
 public class BinaryExpression implements Expression {
-    private Expression left, right;
-    private TypeInfo operator;
+    protected Expression left;
+    protected Expression right;
+    protected TypeInfo type;
 
-    public BinaryExpression(Expression left, Expression right, TypeInfo operator) {
+    public BinaryExpression(Expression left, Expression right) {
         this.left = left;
         this.right = right;
-        this.operator = operator;
     }
 
     @Override
@@ -28,6 +28,6 @@ public class BinaryExpression implements Expression {
 
     @Override
     public TypeInfo getType() {
-        return null;
+        return type;
     }
 }
