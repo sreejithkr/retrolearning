@@ -22,11 +22,11 @@ public class BinaryPlus extends BinaryExpression {
             throw new RuntimeException("Incompatible types");
         } else {
             switch (leftEval.type){
-                case TypeInfo.numeric:
+                case numeric:
                     returnValue.dblVal = leftEval.dblVal + rightEval.dblVal;
                     returnValue.type = TypeInfo.numeric;
                     break;
-                case TypeInfo.string:
+                case string:
                     returnValue.strVal = leftEval.strVal + rightEval.strVal;
                     returnValue.type = TypeInfo.string;
                     break;

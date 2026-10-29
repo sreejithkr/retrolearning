@@ -24,7 +24,9 @@ public enum Tokens {
     TOK_COMMENT,
     TOKEN_BOOL_TRUE,
     TOKEN_BOOL_FALSE,
-    TOKEN_STRING;
+    TOKEN_STRING,
+    TOKEN_BOOL;
+
 
     String value() {
         return switch (this) {

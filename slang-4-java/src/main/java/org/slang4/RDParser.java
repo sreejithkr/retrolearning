@@ -4,7 +4,9 @@ import org.slang4.ast.*;
 import org.slang4.ast.expression.*;
 import org.slang4.ast.statement.AssignmentStatement;
 import org.slang4.ast.statement.VariableDeclStatement;
+import org.slang4.exception.SlangException;
 
+import java.net.StandardSocketOptions;
 import java.util.ArrayList;
 
 public class RDParser extends Lexer {
@@ -14,7 +16,7 @@ public class RDParser extends Lexer {
 
 //    public Expression callExpression(){
 //        currentToken = getToken();
-//        return expresion();
+//        return expression();
 //    }
 
 
@@ -50,11 +52,22 @@ public class RDParser extends Lexer {
                 statements.add(statement);
             }
         }
+
         return statements;
     }
     Statement statement(CompilationContext context){
         Statement returnValue = null;
         switch (currentToken){
+            case Tokens.TOKEN_VAR_STRING,
+                 Tokens.TOKEN_VAR_BOOL,
+                 Tokens.TOKEN_VAR_NUMBER:
+                 returnValue = parseVariableDeclrataionStatement(context);
+                getNextToken();
+                break;
+            case Tokens.TOKEN_UNQUOTED_STRING:
+                returnValue = parseAssignmentStatement(context);
+                getNextToken();
+                break;
             case TOKEN_PRINT:
                 returnValue = printStatement(context);
                 getNextToken();
@@ -64,23 +77,26 @@ public class RDParser extends Lexer {
                 getNextToken();
                 break;
             default:
-                throw new RuntimeException("Invalid statement");
+                getNextToken();
+                returnValue = null;
+               // throw new SlangException("Invalid statement",super.originalExpression,index);
+
         }
         return returnValue;
     }
 
     Statement printStatement(CompilationContext context){
         getNextToken();
-        Expression expression = expresion(context);
+        Expression expression = expression(context);
         if (currentToken != Tokens.TOKEN_SEMICOLON){
-            throw new RuntimeException(": is expected");
+            throw new SlangException(": is expected",originalExpression,index);
         }
         return new PrintStatement(expression);
     }
 
     public Statement printLineStatement(CompilationContext context){
         getNextToken();
-        Expression expression = expresion(context);
+        Expression expression = expression(context);
         if (currentToken != Tokens.TOKEN_SEMICOLON){
             throw new RuntimeException(": is expected");
         }
@@ -91,30 +107,27 @@ public class RDParser extends Lexer {
     <Term> ::= <Factor> | <Factor> {*|/} <Term>
     <Factor>::= <number> | ( <expr> ) | {+|-} <factor>
     * */
-    public  Expression expresion(CompilationContext context) {
-        Tokens lastToken = getToken();
+    public  Expression expression(CompilationContext context) {
+        //System.out.println(inputExpression[index]);
         Expression returnValue = term(context);
         while (currentToken == Tokens.TOKEN_PLUS || currentToken == Tokens.TOKEN_MINUS){
-            lastToken = currentToken;
-            currentToken = getToken();
-            Expression el   = expresion(context);
-            if  (lastToken == Tokens.TOKEN_PLUS){
+            getNextToken();
+            Expression el   = expression(context);
+            if  (penultimateToken == Tokens.TOKEN_PLUS){
                 returnValue = new BinaryPlus(returnValue,el);
-            } else if (lastToken == Tokens.TOKEN_MINUS){
+            } else {
                 returnValue = new BinaryMinus(returnValue,el);
-            }else {
-                throw new RuntimeException("Invalid token");
             }
         }
         return returnValue;
     }
 
     public  Expression term(CompilationContext context){
-        Tokens lastToken = getToken();
+        Tokens lastToken = currentToken;
         Expression returnValue = factor(context);
         while (currentToken == Tokens.TOKEN_DIV || currentToken == Tokens.TOKEN_MUL){
             lastToken = currentToken;
-            currentToken = getToken();
+            getNextToken();
             Expression el   = term(context);
             if (lastToken == Tokens.TOKEN_DIV){
                 returnValue = new BinaryDivision(returnValue,el);
@@ -129,42 +142,49 @@ public class RDParser extends Lexer {
 //    <Factor>::= <number> | ( <expr> ) | {+|-} <factor>
 //    <Factor>::= <number> | ( <expr> ) | {+|-} <factor> <variable> | TRUE | FALSE //Is the EBNF correct for variable ?
     public Expression factor(CompilationContext context){
-        Tokens lastToken = getToken();
         Expression returnValue = null;
-        if(lastToken == Tokens.TOKEN_OPAREN){
-            lastToken = currentToken;
-            returnValue   = expresion(context);
-            if (lastToken != Tokens.TOKEN_CPAREN){
+        if(currentToken == Tokens.TOKEN_OPAREN){
+            getNextToken();
+            returnValue   = expression(context);
+            if (currentToken != Tokens.TOKEN_CPAREN){
                 System.out.println("Missing Closing Parenthesis\n");
                 throw new RuntimeException("Missing Closing Parenthesis");
             }
-            currentToken = getToken();
+            getNextToken();
 
-        } else if (lastToken == Tokens.TOKEN_UNQUOTED_STRING) {
+        } else if (currentToken == Tokens.TOKEN_STRING) {
             returnValue = new StringLiteral(lastDetectedString);
-            currentToken = getToken();
+            getNextToken();
+        } else if (currentToken == Tokens.TOKEN_UNQUOTED_STRING)
+        {
+            String str = lastDetectedString;
+            SymbolInfo inf = context.getSymbolTable().get(str);
+            if (inf == null){
+                throw new SlangException("Undefined symbol: " + str,originalExpression,index);
+            }
+            getNextToken();
+            returnValue = new Variable(inf);
+        }
+        else if(currentToken == Tokens.TOKEN_BOOL_FALSE || currentToken == Tokens.TOKEN_BOOL_TRUE) {
+            returnValue = new BooleanConstant(currentToken == Tokens.TOKEN_BOOL_TRUE);
+            getNextToken();
 
-        } else if(lastToken == Tokens.TOKEN_BOOL_FALSE || lastToken == Tokens.TOKEN_BOOL_TRUE) {
-            returnValue = new BooleanConstant(lastToken == Tokens.TOKEN_BOOL_TRUE);
-            currentToken = getToken();
-
-        }else if (lastToken == Tokens.TOKEN_NUMERIC){
+        }else if (currentToken == Tokens.TOKEN_NUMERIC){
             returnValue = new NumericExpression(number);
-        } else if (lastToken == Tokens.TOKEN_PLUS || lastToken == Tokens.TOKEN_MINUS){
-            lastToken = getToken();
-            currentToken = getToken();
+            getNextToken();
+        } else if (currentToken == Tokens.TOKEN_PLUS || currentToken == Tokens.TOKEN_MINUS){
+            Tokens lastToken = currentToken;
+            getNextToken();
             returnValue = factor(context);
             if (lastToken == Tokens.TOKEN_PLUS){
                 returnValue = new UnaryPlus(returnValue);
-            } else if (lastToken == Tokens.TOKEN_MINUS){
-                returnValue = new UnaryMinus(returnValue);
             } else {
-                throw new RuntimeException("Invalid token");
+                returnValue = new UnaryMinus(returnValue);
             }
 
         } else {
             System.out.println("Illegal Tokens\n");
-            throw new RuntimeException("Illegal Tokens");
+            throw new SlangException("Illegal Tokens",originalExpression,index);
         }
         return returnValue;
     }
@@ -172,7 +192,6 @@ public class RDParser extends Lexer {
     public Statement parseVariableDeclrataionStatement(CompilationContext context) {
          Tokens token = currentToken;
          getNextToken();
-
          if (currentToken == Tokens.TOKEN_UNQUOTED_STRING){
              SymbolInfo symbol = new SymbolInfo();
              symbol.symbolName = lastDetectedString;
@@ -181,7 +200,7 @@ public class RDParser extends Lexer {
              } else if (token == Tokens.TOKEN_VAR_STRING ) {
                  symbol.type = TypeInfo.string;
              } else if (token == Tokens.TOKEN_VAR_NUMBER){
-                 symbol.type = TypeInfo.bool;
+                 symbol.type = TypeInfo.numeric;
              }
              getNextToken();
              if (currentToken == Tokens.TOKEN_SEMICOLON){
@@ -203,22 +222,22 @@ public class RDParser extends Lexer {
         String variableName = lastDetectedString;
         SymbolInfo symbol = context.getSymbolTable().get(variableName);
         if (symbol == null) {
-            throw new RuntimeException("Variable " + variableName + " not found");
+            throw new SlangException("Variable " + variableName + " not found",originalExpression,index);
+        }
+        getNextToken();
+        Tokens token = currentToken;
+        if (token != Tokens.TOKEN_ASSIGN){
+            throw new SlangException("Illegal assignment, expected =",originalExpression,index);
         }
 
         getNextToken();
-        if (currentToken != Tokens.TOKEN_ASSIGN){
-            throw new RuntimeException("Illegal assignment, expected =");
-        }
-
-        getNextToken();
-        Expression expression = expresion(context);
+        Expression expression = expression(context);
         if (expression.typeCheck(context) != symbol.type){
-            throw new RuntimeException("Illegal assignment,type mismatch");
+            throw new SlangException("Illegal assignment,type mismatch",originalExpression,index);
         }
 
         if (currentToken != Tokens.TOKEN_SEMICOLON){
-            throw new RuntimeException("Missing semicolon");
+            throw new  SlangException("Missing semicolon",originalExpression,index);
         }
 
         return new AssignmentStatement(symbol, expression);

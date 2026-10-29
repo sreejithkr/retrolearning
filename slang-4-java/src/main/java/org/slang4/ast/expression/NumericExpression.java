@@ -7,24 +7,28 @@ import org.slang4.TypeInfo;
 
 public class NumericExpression implements Expression {
 
+    private SymbolInfo symbolInfo;
     private double value;
 
     public NumericExpression(double value) {
         this.value = value;
+        symbolInfo = new SymbolInfo();
+        symbolInfo.type = TypeInfo.numeric;
+        symbolInfo.dblVal = value;
     }
 
     @Override
     public SymbolInfo evaluate(RuntimeContext context) {
-        return null;//Should be value in the first step
+        return symbolInfo;//Should be value in the first step
     }
 
     @Override
     public TypeInfo typeCheck(CompilationContext context) {
-        return null;
+        return symbolInfo.type;
     }
 
     @Override
     public TypeInfo getType() {
-        return null;
+        return symbolInfo.type;
     }
 }

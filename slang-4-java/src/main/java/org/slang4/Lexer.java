@@ -1,8 +1,13 @@
 package org.slang4;
 
+import org.slang4.exception.SlangException;
+
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Lexer {
+
+    protected String originalExpression;
 
     private char[] inputExpression;
     Integer index;
@@ -15,12 +20,18 @@ public class Lexer {
 
 
     Lexer(String expression){
+        originalExpression = expression;
         this.inputExpression = expression.toCharArray();
         this.index = 0;
         this.length = expression.length();
-        valueTables =   Arrays.stream(Tokens.values())
-                .map(token -> new ValueTable(token, token.value()))
-                .toArray(ValueTable[]::new);
+        valueTables =  new ValueTable[7];
+        valueTables[0] = new ValueTable(Tokens.TOKEN_BOOL_FALSE, "FALSE");
+        valueTables[1] = new ValueTable(Tokens.TOKEN_BOOL_TRUE, "TRUE");
+        valueTables[2] = new ValueTable(Tokens.TOKEN_VAR_STRING, "STRING");
+        valueTables[3] = new ValueTable(Tokens.TOKEN_VAR_BOOL, "BOOLEAN");
+        valueTables[4] = new ValueTable(Tokens.TOKEN_VAR_NUMBER, "NUMERIC");
+        valueTables[5] = new ValueTable(Tokens.TOKEN_PRINT, "PRINT");
+        valueTables[6] = new ValueTable(Tokens.TOKEN_PRINTLN, "PRINTLINE");
     }
 
     protected Tokens getNextToken(){
@@ -32,9 +43,26 @@ public class Lexer {
     Tokens getToken(){
         Tokens token = Tokens.ILLEGAL_TOKEN;
 
-        while ( index < length && (inputExpression[index] != '\t' || inputExpression[index] != ' ')) {
-            switch (inputExpression[index]) {
+        while( index < length && (inputExpression[index] == '\t' || inputExpression[index] == ' ')){
+            index++;
+        }
+        if (index > length - 1)
+            return Tokens.TOKEN_NULL;
 
+            System.out.printf("test %d",index);
+
+            switch (inputExpression[index]) {
+                case '\n':
+                    index++;
+                    break;
+                case '=':
+                    token = Tokens.TOKEN_ASSIGN;
+                    index++;
+                    break;
+                case ';':
+                    token = Tokens.TOKEN_SEMICOLON;
+                    index++;
+                    break;
                 case '+':
                     token = Tokens.TOKEN_PLUS;
                     index++;
@@ -48,8 +76,20 @@ public class Lexer {
                     index++;
                     break;
                 case  '/':
-                    token = Tokens.TOKEN_DIV;
-                    index++;
+                    if(inputExpression[index + 1] == '/') {
+                        Boolean continueLoop = true;
+                        do {
+                            if (inputExpression[index] == '\n' || inputExpression[index] == '\r') {
+                                continueLoop = false;
+                            } else {
+                                index++;
+                            }
+                        } while (index < length && continueLoop);
+                        index++;
+                    } else {
+                        token = Tokens.TOKEN_DIV;
+                        index++;
+                    }
                     break;
                 case  '(':
                     token = Tokens.TOKEN_OPAREN;
@@ -72,6 +112,7 @@ public class Lexer {
                         return token;
                     } else {
                         lastDetectedString = stringVal.toString();
+                        index++;
                     }
                     break;
                 case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
@@ -99,11 +140,22 @@ public class Lexer {
                             tempStr.append(inputExpression[index]);
                             index++;
                         }
+                        lastDetectedString = tempStr.toString();
+
+                        ValueTable valueTable = Arrays.stream(valueTables)
+                                .filter(value -> value.value.equals(lastDetectedString))
+                                .findFirst().orElse(null);
+                        if (valueTable != null){
+                            token = valueTable.tokens;
+                        } else {
+                            token = Tokens.TOKEN_UNQUOTED_STRING;
+                        }
+                    } else {
+                        System.out.println("Error while analysing the token");
+                        throw new SlangException("Error while analysing the token", originalExpression, index);
                     }
-                    System.out.println("Error while analysing the token");
-                    throw new RuntimeException("Error while analysing the token");
             }
-        }
+
         return token;
     }
 
