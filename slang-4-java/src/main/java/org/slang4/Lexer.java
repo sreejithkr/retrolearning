@@ -49,7 +49,6 @@ public class Lexer {
         if (index > length - 1)
             return Tokens.TOKEN_NULL;
 
-            System.out.printf("test %d",index);
 
             switch (inputExpression[index]) {
                 case '\n':

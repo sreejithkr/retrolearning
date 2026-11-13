@@ -32,4 +32,10 @@ public class AssignmentStatement implements Statement {
     public Boolean compile(ExecutableGenerationContext context) {
         return null;
     }
+
+    @Override
+    public String generate() {
+        String variableName = variable.getName();
+        return variableName + " = " + expr.generate()  + ";\n";
+    }
 }

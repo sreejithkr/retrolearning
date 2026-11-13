@@ -26,4 +26,9 @@ public class UnaryExpression implements Expression {
     public TypeInfo getType() {
         return typeInfo;
     }
+
+    @Override
+    public String generate() {
+        return "";
+    }
 }

@@ -9,6 +9,5 @@ public interface Expression {
     public SymbolInfo evaluate(RuntimeContext context);
     public TypeInfo typeCheck(CompilationContext context);
     public TypeInfo getType();
-
-
+    public String generate();
 }

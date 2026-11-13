@@ -27,4 +27,9 @@ public class StringLiteral implements Expression {
     public TypeInfo getType() {
         return symbolInfo.type;
     }
+
+    @Override
+    public String generate() {
+        return symbolInfo.strVal;
+    }
 }

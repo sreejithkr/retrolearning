@@ -72,4 +72,9 @@ public class Variable implements Expression{
     public TypeInfo getType() {
         return type;
     }
+
+    @Override
+    public String generate() {
+        return " " + name + " ";
+    }
 }

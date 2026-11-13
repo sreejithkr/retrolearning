@@ -26,4 +26,9 @@ public class NumericConstant implements Expression {
     public TypeInfo getType() {
         return symbolInfo.type;
     }
+
+    @Override
+    public String generate() {
+        return  String.format ("%f",symbolInfo.dblVal);
+    }
 }

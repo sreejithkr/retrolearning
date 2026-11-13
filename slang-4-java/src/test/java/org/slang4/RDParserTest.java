@@ -25,7 +25,10 @@ class RDParserTest {
         String expression = Files.readString(path);
         //CompilationContext context = new CompilationContext(new SymbolTable());
         parser = new RDParser(expression);
-        parser.parse();
+        var stlist = parser.parse();
+        for (int i = 0; i < stlist.size(); i++) {
+            System.out.println(stlist.get(i).generate());
+        }
         // TODO: verify a print statement produces a PrintStatement AST node
     }
 
@@ -35,7 +38,10 @@ class RDParserTest {
         String expression = Files.readString(path);
         //CompilationContext context = new CompilationContext(new SymbolTable());
         parser = new RDParser(expression);
-        parser.parse();
+        var stlist = parser.parse();
+        for (int i = 0; i < stlist.size(); i++) {
+            System.out.println(stlist.get(i).generate());
+        }
         // TODO: verify a print statement produces a PrintStatement AST node
     }
 
@@ -45,7 +51,10 @@ class RDParserTest {
         String expression = Files.readString(path);
         //CompilationContext context = new CompilationContext(new SymbolTable());
         parser = new RDParser(expression);
-        parser.parse();
+        var stlist = parser.parse();
+        for (int i = 0; i < stlist.size(); i++) {
+            System.out.println(stlist.get(i).generate());
+        }
         // TODO: verify a print statement produces a PrintStatement AST node
     }
 
@@ -55,7 +64,13 @@ class RDParserTest {
         String expression = Files.readString(path);
         //CompilationContext context = new CompilationContext(new SymbolTable());
         parser = new RDParser(expression);
-        parser.parse();
+        var stlist = parser.parse();
+        for (int i = 0; i < stlist.size(); i++) {
+            System.out.println(stlist.get(i).generate());
+        }
+
+
+
         // TODO: verify a print statement produces a PrintStatement AST node
     }
 

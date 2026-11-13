@@ -22,4 +22,9 @@ public class PrintStatement implements Statement {
     public Boolean compile(ExecutableGenerationContext context) {
         return null;
     }
+
+    @Override
+    public String generate() {
+        return "PRINT " + expression.generate() + ";\n";
+    }
 }

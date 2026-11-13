@@ -30,4 +30,9 @@ public class BinaryExpression implements Expression {
     public TypeInfo getType() {
         return type;
     }
+
+    @Override
+    public String generate() {
+        throw new UnsupportedOperationException();
+    }
 }

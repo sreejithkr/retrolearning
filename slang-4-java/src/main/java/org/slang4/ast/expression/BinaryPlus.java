@@ -58,4 +58,9 @@ public class BinaryPlus extends BinaryExpression {
     public TypeInfo getType() {
         return type;
     }
+
+    @Override
+    public String generate() {
+        return left.generate() + " + " + right.generate();
+    }
 }

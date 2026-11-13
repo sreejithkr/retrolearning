@@ -108,12 +108,13 @@ public class RDParser extends Lexer {
     <Factor>::= <number> | ( <expr> ) | {+|-} <factor>
     * */
     public  Expression expression(CompilationContext context) {
-        //System.out.println(inputExpression[index]);
+        System.out.println("expression");
         Expression returnValue = term(context);
         while (currentToken == Tokens.TOKEN_PLUS || currentToken == Tokens.TOKEN_MINUS){
+            Tokens lasToken = currentToken;
             getNextToken();
             Expression el   = expression(context);
-            if  (penultimateToken == Tokens.TOKEN_PLUS){
+            if  (lasToken == Tokens.TOKEN_PLUS){
                 returnValue = new BinaryPlus(returnValue,el);
             } else {
                 returnValue = new BinaryMinus(returnValue,el);
@@ -123,6 +124,7 @@ public class RDParser extends Lexer {
     }
 
     public  Expression term(CompilationContext context){
+        System.out.println("term");
         Tokens lastToken = currentToken;
         Expression returnValue = factor(context);
         while (currentToken == Tokens.TOKEN_DIV || currentToken == Tokens.TOKEN_MUL){
@@ -142,6 +144,7 @@ public class RDParser extends Lexer {
 //    <Factor>::= <number> | ( <expr> ) | {+|-} <factor>
 //    <Factor>::= <number> | ( <expr> ) | {+|-} <factor> <variable> | TRUE | FALSE //Is the EBNF correct for variable ?
     public Expression factor(CompilationContext context){
+        System.out.println("factor");
         Expression returnValue = null;
         if(currentToken == Tokens.TOKEN_OPAREN){
             getNextToken();
@@ -178,9 +181,12 @@ public class RDParser extends Lexer {
             returnValue = factor(context);
             if (lastToken == Tokens.TOKEN_PLUS){
                 returnValue = new UnaryPlus(returnValue);
-            } else {
+            } else if(lastToken == Tokens.TOKEN_MINUS){
                 returnValue = new UnaryMinus(returnValue);
+            } else {
+                throw new RuntimeException("Invalid token");
             }
+
 
         } else {
             System.out.println("Illegal Tokens\n");

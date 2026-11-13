@@ -36,4 +36,9 @@ public class UnaryPlus extends UnaryExpression {
         }
         return typeInfo;
     }
+
+    @Override
+    public String generate() {
+        return "+" +expression.generate();
+    }
 }

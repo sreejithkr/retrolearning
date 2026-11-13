@@ -31,4 +31,9 @@ public class NumericExpression implements Expression {
     public TypeInfo getType() {
         return symbolInfo.type;
     }
+
+    @Override
+    public String generate() {
+        return  "" + value;
+    }
 }

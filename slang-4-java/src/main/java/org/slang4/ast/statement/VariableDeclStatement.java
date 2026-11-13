@@ -26,4 +26,10 @@ public class VariableDeclStatement implements Statement {
     public Boolean compile(ExecutableGenerationContext context) {
         return null;
     }
+
+    @Override
+    public String generate() {
+        String typeString = symbolInfo.type.name();
+        return typeString + " " + symbolInfo.symbolName  + ";\n";
+    }
 }

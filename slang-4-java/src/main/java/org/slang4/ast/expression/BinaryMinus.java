@@ -44,4 +44,9 @@ public class BinaryMinus extends BinaryExpression{
         }
         return type;
     }
+
+    @Override
+    public String generate() {
+        return left.generate() + " - " + right.generate();
+    }
 }

@@ -7,4 +7,5 @@ import org.slang4.SymbolInfo;
 public interface Statement {
     public SymbolInfo execute(RuntimeContext context);
     public abstract Boolean compile(ExecutableGenerationContext context);
+    public String generate();
 }
